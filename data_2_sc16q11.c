@@ -28,12 +28,12 @@ int main(int argc, char **argv)
                 printf("Tamanho da estrutura SC16Q11 = %d Bytes\n\n",sizeof(SC16Q11));
                
                 fread(&ADIQ, sizeof(SC16Q11),1, pont_data);
-                printf("Valor da Amostra Q hexadecimal 0x%08X %5d\n", ADIQ.q,ADIQ.q);
-                printf("Valor da Amostra I hexadecimal 0x%08X %5d\n", ADIQ.i,ADIQ.i);
+                printf("Valor da Amostra Q hexadecimal 0x%08X %+5d\n", ADIQ.q,ADIQ.q);
+                printf("Valor da Amostra I hexadecimal 0x%08X %+5d\n", ADIQ.i,ADIQ.i);
 
                 fread(&ADIQ, sizeof(SC16Q11),1, pont_data);
-                printf("Valor da Amostra Q hexadecimal 0x%08X %5d\n", ADIQ.q,ADIQ.q);
-                printf("Valor da Amostra I hexadecimal 0x%08X %5d\n", ADIQ.i,ADIQ.i);
+                printf("Valor da Amostra Q hexadecimal 0x%08X %+5d\n", ADIQ.q,ADIQ.q);
+                printf("Valor da Amostra I hexadecimal 0x%08X %+5d\n", ADIQ.i,ADIQ.i);
     
                 fclose(pont_data);
                 //printf("Fechando arquivo: %s\n",argv[1]);
