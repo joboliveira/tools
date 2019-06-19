@@ -3,4 +3,4 @@ all:
 	gcc -o converter data_2_sc16q11.c -I. signal_generator.o
 	
 senoidal:
-	gcc -o senoidal senoidal.c
+	gcc -o senoide senoide.c
