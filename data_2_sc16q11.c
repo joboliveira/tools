@@ -210,4 +210,4 @@ int main(int argc, char **argv)
 	//printf("Fechando arquivo: %s\n",argv[1]);
 
 	return 0;
-  
+}  
