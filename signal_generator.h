@@ -7,6 +7,7 @@ typedef struct sirgnal_t{
   float time;
   float phase;
   float samplerate;
+  float pulse;
   float output;
 } SIGNAL_T;
 

@@ -35,6 +35,7 @@ int main(int argc, char **argv)
 		printf("Entre com o comando:\r\t\t\t$ %s.exe <bin|csv> <teste.txt>\n",argv[0]);
 		printf("Ou:\r\t\t\t$ %s.exe <iq> <arquivo_i.txt> <arquivo_q.txt>\n",argv[0]);
 		printf("Ou:\r\t\t\t$ %s.exe <sig2iq> <arquivo_de_entrada.txt>\n",argv[0]);
+		printf("Ou:\r\t\t\t$ %s.exe <sig2qi> <arquivo_de_entrada.txt>\n",argv[0]);
 		printf("Ou:\r\t\t\t$ %s.exe <sig2iq2ch> <arquivo_de_entrada_canal_1.txt> <arquivo_de_entrada_canal_1.txt>\n",argv[0]);
 		return 0;
 	}
@@ -166,6 +167,35 @@ int main(int argc, char **argv)
 		fclose(pont_data_i);
 		//fclose(pont_data_q);
 	}
+	else if (strcmp(argv[1],"sig2qi") == 0)
+	{
+		SC16Q11_T ADIQ;
+		printf("Convertendo arquivos de sinal para para binario IQ\r\n");
+		pont_output_data = fopen("saida.bin","w");
+		pont_data_i = fopen(argv[2],"r");
+		//pont_data_q = fopen(argv[3],"r");
+
+		line_number=1;
+		while(fgets(ptemp_char,32,pont_data_i) != NULL)
+		{
+			data_i = atoi(ptemp_char);
+
+			//fgets(ptemp_char,32,pont_data_q);
+			//data_q = atoi(ptemp_char);
+
+			ADIQ.q = data_i; // Apenas para teste, trocar os nomes depois
+			ADIQ.i = 0;      // Apenas para teste, trocar os nomes depois
+
+			printf("Line number: %5d =>\r\t\t\tI %0+8d\r\t\t\t\t, Q %0+6d\r\n",line_number, data_i, data_q);
+
+			fwrite(&ADIQ,sizeof(SC16Q11_T),1,pont_output_data);
+
+			line_number++;
+		}
+		fclose(pont_output_data);
+		fclose(pont_data_i);
+		//fclose(pont_data_q);
+	}
 	else if (strcmp(argv[1],"sig2iq2ch") == 0)
 	{
 		SC16Q11_T ADIQ_CH1;
@@ -203,6 +233,10 @@ int main(int argc, char **argv)
 		fclose(pont_data_i);
 		//fclose(pont_data_q);
 	}
+	else if (strcmp(argv[1],"signal_generator") == 0)
+	{
+
+	}
 
 
 	fclose(pont_data);
@@ -210,4 +244,4 @@ int main(int argc, char **argv)
 	//printf("Fechando arquivo: %s\n",argv[1]);
 
 	return 0;
-}  
+}
