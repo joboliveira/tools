@@ -18,7 +18,7 @@ typedef struct sirgnal_t{
 // Y[n] = K*Y[n-1]-Y[n-2]
 //
 
-float k
+float k;
 
 int senoidal(SIGNAL_T *this)
 {
