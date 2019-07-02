@@ -14,12 +14,15 @@ typedef struct sirgnal_t{
 } SIGNAL_T;
 */
 
+<<<<<<< HEAD
 // For generate a signal
 // Y[n] = K*Y[n-1]-Y[n-2]
 //
 
 float k;
 
+=======
+>>>>>>> 5c5adfc8d8b76af2b792bd04a96d0d2e4bb8e33b
 int senoidal(SIGNAL_T *this)
 {
   SIGNAL_T *signal;
