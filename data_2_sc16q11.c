@@ -85,8 +85,8 @@ int main(int argc, char **argv)
 		flSize = ftell(pont_data);
 		rewind (pont_data);
 
-		ADIQ.i = 0;
-		ADIQ.q = 0;
+		ADIQ.i =     0; // 0 com  0 Graus de defasagem
+		ADIQ.q =     0;//-2047; // 0 com 90 Graus de defasagem
 		
 		printf("Tamanho do arquivo binário = %d Bytes\n\n",flSize);
 		
@@ -107,7 +107,7 @@ int main(int argc, char **argv)
 			else
 			{
 				ADIQ.i = 0;
-				ADIQ.q = 0;
+				ADIQ.q = 0;//-2047; // 0 com 90 Graus de defasagem
 			}
 			fwrite(&ADIQ,sizeof(SC16Q11),1,pont_output_data);
 		}
@@ -158,7 +158,7 @@ int main(int argc, char **argv)
 			ADIQ.i = data_i;
 			ADIQ.q = data_q;
 
-			printf("Line number: %5d =>\r\t\t\tI %0+8d\r\t\t\t\t, Q %0+6d\r\n",line_number, data_i, data_q);
+			printf("Line number: %5d =>\r\t\t\tI %0+6d\r\t\t\t\t, Q %0+6d\r\n",line_number, data_i, data_q);
 
 			fwrite(&ADIQ,sizeof(SC16Q11),1,pont_output_data);
 
