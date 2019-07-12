@@ -17,7 +17,7 @@ int main(int argc, char **argv)
 	typedef struct sc16q11 {
 		int16_t q;
 		int16_t i;
-	}SC16Q11_T;
+	}SC16Q11;
 
 	int16_t ptemp;
 	char ptemp_char[256];
@@ -37,35 +37,86 @@ int main(int argc, char **argv)
 		printf("Ou:\r\t\t\t$ %s.exe <sig2iq> <arquivo_de_entrada.txt>\n",argv[0]);
 		printf("Ou:\r\t\t\t$ %s.exe <sig2qi> <arquivo_de_entrada.txt>\n",argv[0]);
 		printf("Ou:\r\t\t\t$ %s.exe <sig2iq2ch> <arquivo_de_entrada_canal_1.txt> <arquivo_de_entrada_canal_1.txt>\n",argv[0]);
+		printf("Entre com o comando:\r\t\t\t$ %s.exe <bin2fill> <samplerate> <prf> <teste.txt>\n",argv[0]);
 		return 0;
 	}
 	//printf("Abrindo arquivo: %s\n",argv[1]);
 
 
-//	SC16Q11_T ADIQ;
+//	SC16Q11 ADIQ;
 
-	printf("Tamanho da estrutura SC16Q11_T = %d Bytes\n\n",sizeof(SC16Q11_T));
+	printf("Tamanho da estrutura SC16Q11 = %d Bytes\n\n",sizeof(SC16Q11));
 
 	if (strcmp(argv[1],"bin") == 0)
 	{
-		SC16Q11_T ADIQ;
+		SC16Q11 ADIQ;
 		pont_data = fopen(argv[2],"r");
+	
 		if(pont_data == NULL)
 		{
 			printf("Erro ao abrir o arquivo, arquivo vazio!\n");
 			return 1;
 		}
-		fread(&ADIQ, sizeof(SC16Q11_T),1, pont_data);
+		
+		fread(&ADIQ, sizeof(SC16Q11),1, pont_data);
 		printf("Valor da Amostra Q hexadecimal 0x%08X %5d\n", ADIQ.q,ADIQ.q);
 		printf("Valor da Amostra I hexadecimal 0x%08X %5d\n", ADIQ.i,ADIQ.i);
 
-		fread(&ADIQ, sizeof(SC16Q11_T),1, pont_data);
+		fread(&ADIQ, sizeof(SC16Q11),1, pont_data);
 		printf("Valor da Amostra Q hexadecimal 0x%08X %5d\n", ADIQ.q,ADIQ.q);
 		printf("Valor da Amostra I hexadecimal 0x%08X %5d\n", ADIQ.i,ADIQ.i);
 	}
+	if (strcmp(argv[1],"bin2fill") == 0)
+	{
+		SC16Q11	ADIQ;
+		long   	flSize;
+		size_t 	result;
+		long   	samplerate;
+		long   	prf;
+		long   	samples;
+		long    fcount;
+
+		samplerate       = atol(argv[2]);
+		prf              = atol(argv[3]);		
+		pont_data        = fopen(argv[4],"r");
+		pont_output_data = fopen("saida.bin","w");
+		
+		fseek(pont_data,0,SEEK_END);
+		flSize = ftell(pont_data);
+		rewind (pont_data);
+
+		ADIQ.i =     0; // 0 com  0 Graus de defasagem
+		ADIQ.q =     0;//-2047; // 0 com 90 Graus de defasagem
+		
+		printf("Tamanho do arquivo binário = %d Bytes\n\n",flSize);
+		
+		if(pont_data == NULL)
+		{
+			printf("Erro ao abrir o arquivo, arquivo vazio!\n");
+			return 1;
+		}
+		
+		//fcount = flSize;
+		for (samples = 0 ; samples < (samplerate/prf); samples++)
+		{
+			if(samples < ((flSize/4)-1))
+			{
+				fread(&ADIQ, sizeof(SC16Q11),1, pont_data);
+				fcount -= sizeof(SC16Q11);
+			}
+			else
+			{
+				ADIQ.i = 0;
+				ADIQ.q = 0;//-2047; // 0 com 90 Graus de defasagem
+			}
+			fwrite(&ADIQ,sizeof(SC16Q11),1,pont_output_data);
+		}
+		fclose(pont_output_data);
+		fclose(pont_data_i);	
+	}
 	else if (strcmp(argv[1],"csv") == 0)
 	{
-		SC16Q11_T ADIQ;
+		SC16Q11 ADIQ;
 		pont_data = fopen(argv[2],"r");
 		if(pont_data == NULL)
 		{
@@ -84,13 +135,13 @@ int main(int argc, char **argv)
 			ADIQ.i = data;
 			ADIQ.q = 0;
 
-			fwrite(&ADIQ,sizeof(SC16Q11_T),1,pont_output_data);
+			fwrite(&ADIQ,sizeof(SC16Q11),1,pont_output_data);
 		}
 		fclose(pont_output_data);
 	}
 	else if (strcmp(argv[1],"iq") == 0)
 	{
-		SC16Q11_T ADIQ;
+		SC16Q11 ADIQ;
 		printf("Convertendo arquivos I e q para binario IQ\r\n");
 		pont_output_data = fopen("saida.bin","w");
 		pont_data_i = fopen(argv[2],"r");
@@ -107,9 +158,9 @@ int main(int argc, char **argv)
 			ADIQ.i = data_i;
 			ADIQ.q = data_q;
 
-			printf("Line number: %5d =>\r\t\t\tI %0+8d\r\t\t\t\t, Q %0+6d\r\n",line_number, data_i, data_q);
+			printf("Line number: %5d =>\r\t\t\tI %0+6d\r\t\t\t\t, Q %0+6d\r\n",line_number, data_i, data_q);
 
-			fwrite(&ADIQ,sizeof(SC16Q11_T),1,pont_output_data);
+			fwrite(&ADIQ,sizeof(SC16Q11),1,pont_output_data);
 
 			line_number++;
 		}
@@ -119,13 +170,13 @@ int main(int argc, char **argv)
 	}
 	else if (strcmp(argv[1],"sig2iq") == 0)
 	{
-		SC16Q11_T ADIQ;
+		SC16Q11 ADIQ;
 		printf("Convertendo arquivos de sinal para para binario IQ\r\n");
 		pont_output_data = fopen("saida.bin","w");
 		pont_data_i = fopen(argv[2],"r");
 		//pont_data_q = fopen(argv[3],"r");
 
-    SIGNAL_T data_temp;
+		SIGNAL_T data_temp;
     SIGNAL_T *p_data_temp;
 
     p_data_temp = &data_temp;
@@ -157,9 +208,9 @@ int main(int argc, char **argv)
 			ADIQ.i = data_i;
 			ADIQ.q = 0;
 
-			printf("Line number: %5d =>\r\t\t\tI %0+6d\r\t\t\t\t\t, Q %0+6d\r\n",line_number, data_i, data_q);
+			printf("Line number: %5d =>\r\t\t\tI %0+8d\r\t\t\t\t, Q %0+6d\r\n",line_number, data_i, data_q);
 
-			fwrite(&ADIQ,sizeof(SC16Q11_T),1,pont_output_data);
+			fwrite(&ADIQ,sizeof(SC16Q11),1,pont_output_data);
 
 			line_number++;
 		}
@@ -169,7 +220,7 @@ int main(int argc, char **argv)
 	}
 	else if (strcmp(argv[1],"sig2qi") == 0)
 	{
-		SC16Q11_T ADIQ;
+		SC16Q11 ADIQ;
 		printf("Convertendo arquivos de sinal para para binario IQ\r\n");
 		pont_output_data = fopen("saida.bin","w");
 		pont_data_i = fopen(argv[2],"r");
@@ -188,7 +239,7 @@ int main(int argc, char **argv)
 
 			printf("Line number: %5d =>\r\t\t\tI %0+8d\r\t\t\t\t, Q %0+6d\r\n",line_number, data_i, data_q);
 
-			fwrite(&ADIQ,sizeof(SC16Q11_T),1,pont_output_data);
+			fwrite(&ADIQ,sizeof(SC16Q11),1,pont_output_data);
 
 			line_number++;
 		}
@@ -198,8 +249,8 @@ int main(int argc, char **argv)
 	}
 	else if (strcmp(argv[1],"sig2iq2ch") == 0)
 	{
-		SC16Q11_T ADIQ_CH1;
-		SC16Q11_T ADIQ_CH2;
+		SC16Q11 ADIQ_CH1;
+		SC16Q11 ADIQ_CH2;
 		printf("Convertendo arquivos de sinal para para binario IQ\r\n");
 		pont_output_data = fopen("saida.bin","w");
 		pont_data_pulse = fopen(argv[2],"r");
@@ -224,18 +275,14 @@ int main(int argc, char **argv)
 
 			printf("Line number: %5d =>\r\t\t\tCH1: I %0+6d\r\t\t\t\t\t, Q %0+6d\r\t\t\t\t\t\t\t CH2: I %0+6d\r\t\t\t\t\t\t\t\t\t, Q %0+6d\r\n"    ,line_number, data_pulse, 0, data_echo, 0);
 
-			fwrite(&ADIQ_CH1,sizeof(SC16Q11_T),1,pont_output_data);
-			fwrite(&ADIQ_CH2,sizeof(SC16Q11_T),1,pont_output_data);
+			fwrite(&ADIQ_CH1,sizeof(SC16Q11),1,pont_output_data);
+			fwrite(&ADIQ_CH2,sizeof(SC16Q11),1,pont_output_data);
 
 			line_number++;
 		}
 		fclose(pont_output_data);
 		fclose(pont_data_i);
 		//fclose(pont_data_q);
-	}
-	else if (strcmp(argv[1],"signal_generator") == 0)
-	{
-
 	}
 
 
