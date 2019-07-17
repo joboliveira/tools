@@ -4,3 +4,7 @@ all:
 	
 senoidal:
 	gcc -o senoide senoide.c
+
+bin2hex:
+	gcc -o bin2hex bin2hex.c -I.
+
