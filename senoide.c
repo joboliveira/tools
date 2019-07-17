@@ -17,6 +17,8 @@ FILE *arquivo;
 
 int main()
 {
+ printf("Gerador de onda senoidal em arquivo\r\n");
+ printf("Arquivo de saida: SinalSenoidal.dat\r\n");
  if((arquivo =  fopen("SinalSenoidal.dat","w")) == NULL)
  {
   printf("Erro ao abrir o arquivo.\r\n");
