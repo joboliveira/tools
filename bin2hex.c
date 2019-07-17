@@ -71,7 +71,7 @@ int main(int argc, char **argv)
 
   fseek (pont_data_bin, 0, SEEK_SET);   // non-portable
 
-  printf("Tamanho do arquivo de entrada em Bytes %d\r\n",size);
+  printf("Tamanho do arquivo de entrada em Bytes %ld\r\n",size);
 
   for (endereco ; endereco < size ; endereco++)
   {
