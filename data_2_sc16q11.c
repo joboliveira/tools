@@ -13,10 +13,12 @@ int main(int argc, char **argv)
 	FILE *pont_data_q;
 	FILE *pont_data_pulse;
 	FILE *pont_data_echo;
+	FILE *pont_out_data_i;
+	FILE *pont_out_data_q;
 
 	typedef struct sc16q11 {
-		int16_t q;
 		int16_t i;
+		int16_t q;
 	}SC16Q11;
 
 	int16_t ptemp;
@@ -37,7 +39,7 @@ int main(int argc, char **argv)
 		printf("Ou:\r\t\t\t$ %s.exe <sig2iq> <arquivo_de_entrada.txt>\n",argv[0]);
 		printf("Ou:\r\t\t\t$ %s.exe <sig2qi> <arquivo_de_entrada.txt>\n",argv[0]);
 		printf("Ou:\r\t\t\t$ %s.exe <sig2iq2ch> <arquivo_de_entrada_canal_1.txt> <arquivo_de_entrada_canal_1.txt>\n",argv[0]);
-		printf("Entre com o comando:\r\t\t\t$ %s.exe <bin2fill> <samplerate> <prf> <teste.txt>\n",argv[0]);
+		printf("Entre com o comando:\r\t\t\t$ %s.exe <bin2fill> <samplerate> <prf> <teste.bin>\n",argv[0]);
 		return 0;
 	}
 	//printf("Abrindo arquivo: %s\n",argv[1]);
@@ -51,13 +53,13 @@ int main(int argc, char **argv)
 	{
 		SC16Q11 ADIQ;
 		pont_data = fopen(argv[2],"r");
-	
+
 		if(pont_data == NULL)
 		{
 			printf("Erro ao abrir o arquivo, arquivo vazio!\n");
 			return 1;
 		}
-		
+
 		fread(&ADIQ, sizeof(SC16Q11),1, pont_data);
 		printf("Valor da Amostra Q hexadecimal 0x%08X %5d\n", ADIQ.q,ADIQ.q);
 		printf("Valor da Amostra I hexadecimal 0x%08X %5d\n", ADIQ.i,ADIQ.i);
@@ -65,6 +67,8 @@ int main(int argc, char **argv)
 		fread(&ADIQ, sizeof(SC16Q11),1, pont_data);
 		printf("Valor da Amostra Q hexadecimal 0x%08X %5d\n", ADIQ.q,ADIQ.q);
 		printf("Valor da Amostra I hexadecimal 0x%08X %5d\n", ADIQ.i,ADIQ.i);
+
+		fclose(pont_data);
 	}
 	if (strcmp(argv[1],"bin2fill") == 0)
 	{
@@ -77,25 +81,27 @@ int main(int argc, char **argv)
 		long    fcount;
 
 		samplerate       = atol(argv[2]);
-		prf              = atol(argv[3]);		
+		prf              = atol(argv[3]);
 		pont_data        = fopen(argv[4],"r");
 		pont_output_data = fopen("saida.bin","w");
-		
+		pont_out_data_i  = fopen("saida_I.bin","w");
+		pont_out_data_q  = fopen("saida_Q.bin","w");
+
 		fseek(pont_data,0,SEEK_END);
 		flSize = ftell(pont_data);
 		rewind (pont_data);
 
 		ADIQ.i =     0; // 0 com  0 Graus de defasagem
 		ADIQ.q =     0;//-2047; // 0 com 90 Graus de defasagem
-		
-		printf("Tamanho do arquivo binário = %d Bytes\n\n",flSize);
-		
+
+		printf("Tamanho do arquivo binário SC16Q11 = %d Bytes\n\n",flSize);
+
 		if(pont_data == NULL)
 		{
 			printf("Erro ao abrir o arquivo, arquivo vazio!\n");
 			return 1;
 		}
-		
+
 		//fcount = flSize;
 		for (samples = 0 ; samples < (samplerate/prf); samples++)
 		{
@@ -112,7 +118,8 @@ int main(int argc, char **argv)
 			fwrite(&ADIQ,sizeof(SC16Q11),1,pont_output_data);
 		}
 		fclose(pont_output_data);
-		fclose(pont_data_i);	
+		fclose(pont_data_i);
+		fclose(pont_data);
 	}
 	else if (strcmp(argv[1],"csv") == 0)
 	{
@@ -138,12 +145,15 @@ int main(int argc, char **argv)
 			fwrite(&ADIQ,sizeof(SC16Q11),1,pont_output_data);
 		}
 		fclose(pont_output_data);
+		fclose(pont_data);
 	}
 	else if (strcmp(argv[1],"iq") == 0)
 	{
 		SC16Q11 ADIQ;
 		printf("Convertendo arquivos I e q para binario IQ\r\n");
 		pont_output_data = fopen("saida.bin","w");
+		pont_out_data_i  = fopen("saida_I.bin","w");
+		pont_out_data_q  = fopen("saida_Q.bin","w");
 		pont_data_i = fopen(argv[2],"r");
 		pont_data_q = fopen(argv[3],"r");
 
@@ -161,12 +171,17 @@ int main(int argc, char **argv)
 			printf("Line number: %5d =>\r\t\t\tI %0+6d\r\t\t\t\t, Q %0+6d\r\n",line_number, data_i, data_q);
 
 			fwrite(&ADIQ,sizeof(SC16Q11),1,pont_output_data);
+			fwrite(&ADIQ.i,sizeof(ADIQ.i),1,pont_out_data_i);
+			fwrite(&ADIQ.q,sizeof(ADIQ.q),1,pont_out_data_q);
 
 			line_number++;
 		}
 		fclose(pont_output_data);
 		fclose(pont_data_i);
 		fclose(pont_data_q);
+		fclose(pont_data);
+		fclose(pont_out_data_i);
+		fclose(pont_out_data_q);
 	}
 	else if (strcmp(argv[1],"sig2iq") == 0)
 	{
@@ -217,6 +232,7 @@ int main(int argc, char **argv)
 		fclose(pont_output_data);
 		fclose(pont_data_i);
 		//fclose(pont_data_q);
+		fclose(pont_data);
 	}
 	else if (strcmp(argv[1],"sig2qi") == 0)
 	{
@@ -246,6 +262,7 @@ int main(int argc, char **argv)
 		fclose(pont_output_data);
 		fclose(pont_data_i);
 		//fclose(pont_data_q);
+		fclose(pont_data);
 	}
 	else if (strcmp(argv[1],"sig2iq2ch") == 0)
 	{
@@ -283,10 +300,11 @@ int main(int argc, char **argv)
 		fclose(pont_output_data);
 		fclose(pont_data_i);
 		//fclose(pont_data_q);
+		fclose(pont_data);
 	}
 
 
-	fclose(pont_data);
+	//fclose(pont_data);
 
 	//printf("Fechando arquivo: %s\n",argv[1]);
 
