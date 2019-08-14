@@ -52,23 +52,44 @@ int main(int argc, char **argv)
 	if (strcmp(argv[1],"bin") == 0)
 	{
 		SC16Q11 ADIQ;
+		long   	flSize;
 		pont_data = fopen(argv[2],"r");
+		pont_output_data = fopen(argv[3],"wb");
+
 
 		if(pont_data == NULL)
 		{
-			printf("Erro ao abrir o arquivo, arquivo vazio!\n");
+			printf("Erro ao abrir o arquivo de entrada, arquivo vazio!\n");
 			return 1;
 		}
 
-		fread(&ADIQ, sizeof(SC16Q11),1, pont_data);
-		printf("Valor da Amostra Q hexadecimal 0x%08X %5d\n", ADIQ.q,ADIQ.q);
-		printf("Valor da Amostra I hexadecimal 0x%08X %5d\n", ADIQ.i,ADIQ.i);
+		if(pont_output_data == NULL)
+		{
+			printf("Erro ao abrir o arquivo de saida, arquivo vazio!\n");
+			return 1;
+		}
 
-		fread(&ADIQ, sizeof(SC16Q11),1, pont_data);
-		printf("Valor da Amostra Q hexadecimal 0x%08X %5d\n", ADIQ.q,ADIQ.q);
-		printf("Valor da Amostra I hexadecimal 0x%08X %5d\n", ADIQ.i,ADIQ.i);
+		fseek(pont_data,0,SEEK_END);
+		flSize = ftell(pont_data);
+		rewind (pont_data);
+
+		printf("Funcao para uso com apenas um canal\r\n");
+		printf("Tamanho do arquivo de entrada %l\r\n",flSize);
+
+		for(long count = 0; count < flSize; count+=4){
+			// channel 1
+			fread(&ADIQ, sizeof(SC16Q11),1, pont_data);
+			//printf("Channel 1: I = %5d, Q = %5d\r\n",ADIQ.i,ADIQ.q);
+			fprintf(pont_output_data,"%d,\t%d\r\n",ADIQ.i,ADIQ.q);
+
+			// channel 2
+			//fread(&ADIQ, sizeof(SC16Q11),1, pont_data);
+			//printf("Channel 2: I = %5d, Q = %5d\r\n",ADIQ.i,ADIQ.q);
+		}
+
 
 		fclose(pont_data);
+		fclose(pont_output_data);
 	}
 	if (strcmp(argv[1],"bin2fill") == 0)
 	{
