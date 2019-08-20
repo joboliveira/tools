@@ -2,7 +2,6 @@
 #include <math.h>
 #include <inttypes.h>
 
-
 /*
 *
 *   Observações Importantes.

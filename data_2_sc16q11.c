@@ -46,7 +46,7 @@ int main(int argc, char **argv)
 	//printf("Abrindo arquivo: %s\n",argv[1]);
 
 	//SC16Q11 ADIQ;
-	printf("Tamanho da estrutura SC16Q11 = %d Bytes\n\n",sizeof(SC16Q11));
+	printf("Tamanho da estrutura SC16Q11 = %ld Bytes\n\n",sizeof(SC16Q11));
 
 	//
 	//argv[1] = tipo de conversão: "bin" usiliza como entrada um arquivo binário
@@ -97,8 +97,8 @@ int main(int argc, char **argv)
 		//FILE_temporario = malloc(flSize);
 
 		//printf("Funcao para uso com apenas um canal\r\n");
-		printf("Tamanho do arquivo de entrada %l\r\n",flSize);
-		printf("Quantidade de Amostras encontradas para cada canal: %d",(flSize/(channels*4)));
+		printf("Tamanho do arquivo de entrada %ld\r\n",flSize);
+		printf("Quantidade de Amostras encontradas para cada canal: %ld",(flSize/(channels*4)));
 
 		for(long count = 0; count < (flSize/4); ){
 
@@ -106,14 +106,14 @@ int main(int argc, char **argv)
 				// channel 1
 				fread(&ADIQ, sizeof(SC16Q11),1, pont_data);
 				//printf("Channel 1: I = %5d, Q = %5d\r\n",ADIQ.i,ADIQ.q);
-				fprintf(pont_output_data,"%d,%d",ADIQ.i,ADIQ.q);
+				fprintf(pont_output_data,"%d, %d",ADIQ.i,ADIQ.q);
 				//fprintf(pont_data_i,"%d\r\n",ADIQ.i);
 				//fprintf(pont_data_q,"%d\r\n",ADIQ.q);
 				//fprintf(FILE_temporario,"%d,\t%d\r\n",ADIQ.i,ADIQ.q);
 				// channel 2
 				fread(&ADIQ, sizeof(SC16Q11),1, pont_data);
 				//printf("Channel 2: I = %5d, Q = %5d\r\n",ADIQ.i,ADIQ.q);
-				fprintf(pont_output_data,"%d,%d\r\n",ADIQ.i,ADIQ.q);
+				fprintf(pont_output_data," %d, %d\r\n",ADIQ.i,ADIQ.q);
 				//fprintf(FILE_temporario,"%d,\t%d\r\n",ADIQ.i,ADIQ.q);
 				count+=channels;
 			}
@@ -121,7 +121,7 @@ int main(int argc, char **argv)
 				// channel 1
 				fread(&ADIQ, sizeof(SC16Q11),1, pont_data);
 				//printf("Channel 1: I = %5d, Q = %5d\r\n",ADIQ.i,ADIQ.q);
-				fprintf(pont_output_data,"%d,%d\r\n",ADIQ.i,ADIQ.q);
+				fprintf(pont_output_data,"%d, %d\r\n",ADIQ.i,ADIQ.q);
 				fprintf(pont_data_i,"%d\r\n",ADIQ.i);
 				fprintf(pont_data_q,"%d\r\n",ADIQ.q);
 
@@ -163,7 +163,7 @@ int main(int argc, char **argv)
 		ADIQ.i =     0; // 0 com  0 Graus de defasagem
 		ADIQ.q =     0;//-2047; // 0 com 90 Graus de defasagem
 
-		printf("Tamanho do arquivo binário SC16Q11 = %d Bytes\n\n",flSize);
+		printf("Tamanho do arquivo binário SC16Q11 = %ld Bytes\n\n",flSize);
 
 		if(pont_data == NULL)
 		{
