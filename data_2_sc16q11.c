@@ -22,9 +22,9 @@ int main(int argc, char **argv)
 	}SC16Q11;
 
 	int16_t ptemp;
-	char ptemp_char[256];
-	char ptemp_char_pulse[256];
-	char ptemp_char_echo[256];
+	char    ptemp_char[256];
+	char    ptemp_char_pulse[256];
+	char    ptemp_char_echo[256];
 	int32_t line_number;
 	int16_t data;
 	int16_t data_i;
@@ -34,27 +34,48 @@ int main(int argc, char **argv)
 
 	if(argc <= 1)
 	{
-		printf("Entre com o comando:\r\t\t\t$ %s.exe <bin|csv> <teste.txt>\n",argv[0]);
+		printf("Entre com o comando:\r\t\t\t$ %s.exe <bin> <number of channels 1|2> <input.bin> <output.csv>\n",argv[0]);
+		printf("Entre com o comando:\r\t\t\t$ %s.exe <csv> <input.csv> <output.bin'>\n",argv[0]);
 		printf("Ou:\r\t\t\t$ %s.exe <iq> <arquivo_i.txt> <arquivo_q.txt>\n",argv[0]);
 		printf("Ou:\r\t\t\t$ %s.exe <sig2iq> <arquivo_de_entrada.txt>\n",argv[0]);
 		printf("Ou:\r\t\t\t$ %s.exe <sig2qi> <arquivo_de_entrada.txt>\n",argv[0]);
-		printf("Ou:\r\t\t\t$ %s.exe <sig2iq2ch> <arquivo_de_entrada_canal_1.txt> <arquivo_de_entrada_canal_1.txt>\n",argv[0]);
+		printf("Ou:\r\t\t\t$ %s.exe <sig2iq2ch> <arquivo_de_entrada_canal_1.txt>\r\n\t\t\t <arquivo_de_entrada_canal_1.txt>\n",argv[0]);
 		printf("Entre com o comando:\r\t\t\t$ %s.exe <bin2fill> <samplerate> <prf> <teste.bin>\n",argv[0]);
 		return 0;
 	}
 	//printf("Abrindo arquivo: %s\n",argv[1]);
 
-
-//	SC16Q11 ADIQ;
-
+	//SC16Q11 ADIQ;
 	printf("Tamanho da estrutura SC16Q11 = %d Bytes\n\n",sizeof(SC16Q11));
 
+	//
+	//argv[1] = tipo de conversão: "bin" usiliza como entrada um arquivo binário
+	//argv[ ] = quantidade de canais presentes no arquivo binário de entrada.
+	//argv[2] = arquivo de entrada, apenas como leitura
+	//argv[3] = arqivos de saída do tipo csv
+	//
 	if (strcmp(argv[1],"bin") == 0)
 	{
 		SC16Q11 ADIQ;
 		long   	flSize;
-		pont_data = fopen(argv[2],"r");
-		pont_output_data = fopen(argv[3],"wb");
+		int32_t channels;
+		char *buffer;
+		channels				 = atoi(argv[2]) == 2 ? 2 : 1;
+		pont_data				 = fopen(argv[3],"r");
+		pont_output_data = fopen(argv[4],"wb");
+		buffer           = malloc(strlen(argv[4]) + 10 );
+
+		memset(buffer,0,sizeof(buffer));
+		strcpy(buffer,argv[4]);
+		strcat(buffer,".I.txt");
+		pont_data_i      = fopen(buffer,"wb");
+
+		memset(buffer,0,sizeof(buffer));
+		strcpy(buffer,argv[4]);
+		strcat(buffer,".Q.txt");
+		pont_data_q      = fopen(buffer,"wb");
+
+		//FILE *FILE_temporario;
 
 
 		if(pont_data == NULL)
@@ -73,23 +94,50 @@ int main(int argc, char **argv)
 		flSize = ftell(pont_data);
 		rewind (pont_data);
 
-		printf("Funcao para uso com apenas um canal\r\n");
+		//FILE_temporario = malloc(flSize);
+
+		//printf("Funcao para uso com apenas um canal\r\n");
 		printf("Tamanho do arquivo de entrada %l\r\n",flSize);
+		printf("Quantidade de Amostras encontradas para cada canal: %d",(flSize/(channels*4)));
 
-		for(long count = 0; count < flSize; count+=4){
-			// channel 1
-			fread(&ADIQ, sizeof(SC16Q11),1, pont_data);
-			//printf("Channel 1: I = %5d, Q = %5d\r\n",ADIQ.i,ADIQ.q);
-			fprintf(pont_output_data,"%d,\t%d\r\n",ADIQ.i,ADIQ.q);
+		for(long count = 0; count < (flSize/4); ){
 
-			// channel 2
-			//fread(&ADIQ, sizeof(SC16Q11),1, pont_data);
-			//printf("Channel 2: I = %5d, Q = %5d\r\n",ADIQ.i,ADIQ.q);
+			if(channels==2){
+				// channel 1
+				fread(&ADIQ, sizeof(SC16Q11),1, pont_data);
+				//printf("Channel 1: I = %5d, Q = %5d\r\n",ADIQ.i,ADIQ.q);
+				fprintf(pont_output_data,"%d,%d",ADIQ.i,ADIQ.q);
+				//fprintf(pont_data_i,"%d\r\n",ADIQ.i);
+				//fprintf(pont_data_q,"%d\r\n",ADIQ.q);
+				//fprintf(FILE_temporario,"%d,\t%d\r\n",ADIQ.i,ADIQ.q);
+				// channel 2
+				fread(&ADIQ, sizeof(SC16Q11),1, pont_data);
+				//printf("Channel 2: I = %5d, Q = %5d\r\n",ADIQ.i,ADIQ.q);
+				fprintf(pont_output_data,"%d,%d\r\n",ADIQ.i,ADIQ.q);
+				//fprintf(FILE_temporario,"%d,\t%d\r\n",ADIQ.i,ADIQ.q);
+				count+=channels;
+			}
+			else{
+				// channel 1
+				fread(&ADIQ, sizeof(SC16Q11),1, pont_data);
+				//printf("Channel 1: I = %5d, Q = %5d\r\n",ADIQ.i,ADIQ.q);
+				fprintf(pont_output_data,"%d,%d\r\n",ADIQ.i,ADIQ.q);
+				fprintf(pont_data_i,"%d\r\n",ADIQ.i);
+				fprintf(pont_data_q,"%d\r\n",ADIQ.q);
+
+				//fprintf(FILE_temporario,"%d,\t%d\r\n",ADIQ.i,ADIQ.q);
+				count+=channels;
+			}
 		}
 
+		//memcpy(pont_output_data,FILE_temporario,flSize);
+		//fwrite(pont_output_data,1,flSize,FILE_temporario);
 
+		//free(FILE_temporario);
 		fclose(pont_data);
 		fclose(pont_output_data);
+		fclose(pont_data_i);
+		fclose(pont_data_q);
 	}
 	if (strcmp(argv[1],"bin2fill") == 0)
 	{
@@ -105,8 +153,8 @@ int main(int argc, char **argv)
 		prf              = atol(argv[3]);
 		pont_data        = fopen(argv[4],"r");
 		pont_output_data = fopen("saida.bin","w");
-		pont_out_data_i  = fopen("saida_I.bin","w");
-		pont_out_data_q  = fopen("saida_Q.bin","w");
+		//pont_out_data_i  = fopen("saida_I.bin","w");
+		//pont_out_data_q  = fopen("saida_Q.bin","w");
 
 		fseek(pont_data,0,SEEK_END);
 		flSize = ftell(pont_data);
@@ -138,9 +186,11 @@ int main(int argc, char **argv)
 			}
 			fwrite(&ADIQ,sizeof(SC16Q11),1,pont_output_data);
 		}
-		fclose(pont_output_data);
-		fclose(pont_data_i);
 		fclose(pont_data);
+		fclose(pont_output_data);
+		//fclose(pont_out_data_i);
+		//fclose(pont_out_data_q);
+
 	}
 	else if (strcmp(argv[1],"csv") == 0)
 	{
@@ -148,11 +198,17 @@ int main(int argc, char **argv)
 		pont_data = fopen(argv[2],"r");
 		if(pont_data == NULL)
 		{
-			printf("Erro ao abrir o arquivo, arquivo vazio!\n");
+			printf("Erro ao abrir o arquivo de entrada, arquivo vazio!\n");
 			return 1;
 		}
 		pont_output_data = fopen("saida.bin","w");
-		printf("Arquivo não suportado\r\n");
+		if(pont_output_data == NULL)
+		{
+			printf("Erro ao abrir o arquivode saída, arquivo vazio!\n");
+			return 1;
+		}
+		//printf("Arquivo não suportado\r\n");
+
 		line_number=1;
 		while(fgets(ptemp_char,32,pont_data) != NULL)
 		{
@@ -175,8 +231,8 @@ int main(int argc, char **argv)
 		pont_output_data = fopen("saida.bin","w");
 		pont_out_data_i  = fopen("saida_I.bin","w");
 		pont_out_data_q  = fopen("saida_Q.bin","w");
-		pont_data_i = fopen(argv[2],"r");
-		pont_data_q = fopen(argv[3],"r");
+		pont_data_i      = fopen(argv[2],"r");
+		pont_data_q      = fopen(argv[3],"r");
 
 		line_number=1;
 		while(fgets(ptemp_char,32,pont_data_i) != NULL)
@@ -200,7 +256,7 @@ int main(int argc, char **argv)
 		fclose(pont_output_data);
 		fclose(pont_data_i);
 		fclose(pont_data_q);
-		fclose(pont_data);
+		//fclose(pont_data);
 		fclose(pont_out_data_i);
 		fclose(pont_out_data_q);
 	}
@@ -218,10 +274,10 @@ int main(int argc, char **argv)
     p_data_temp = &data_temp;
 
     printf("...\r\n");
-    p_data_temp->amplitude = 1.0;
+    p_data_temp->amplitude =  1.0;
     p_data_temp->frequency = 60.0;
-    p_data_temp->time = 1.0;
-    p_data_temp->phase = 0.0;
+    p_data_temp->time      =  1.0;
+    p_data_temp->phase     =  0.0;
 
     senoidal(p_data_temp);
 
@@ -260,19 +316,19 @@ int main(int argc, char **argv)
 		SC16Q11 ADIQ;
 		printf("Convertendo arquivos de sinal para para binario IQ\r\n");
 		pont_output_data = fopen("saida.bin","w");
-		pont_data_i = fopen(argv[2],"r");
+		pont_data_q = fopen(argv[2],"r");
 		//pont_data_q = fopen(argv[3],"r");
 
 		line_number=1;
-		while(fgets(ptemp_char,32,pont_data_i) != NULL)
+		while(fgets(ptemp_char,32,pont_data_q) != NULL)
 		{
-			data_i = atoi(ptemp_char);
+			data_q = atoi(ptemp_char);
 
 			//fgets(ptemp_char,32,pont_data_q);
 			//data_q = atoi(ptemp_char);
 
-			ADIQ.q = data_i; // Apenas para teste, trocar os nomes depois
 			ADIQ.i = 0;      // Apenas para teste, trocar os nomes depois
+			ADIQ.q = data_q; // Apenas para teste, trocar os nomes depois
 
 			printf("Line number: %5d =>\r\t\t\tI %0+8d\r\t\t\t\t, Q %0+6d\r\n",line_number, data_i, data_q);
 
@@ -281,7 +337,7 @@ int main(int argc, char **argv)
 			line_number++;
 		}
 		fclose(pont_output_data);
-		fclose(pont_data_i);
+		fclose(pont_data_q);
 		//fclose(pont_data_q);
 		fclose(pont_data);
 	}
@@ -291,9 +347,9 @@ int main(int argc, char **argv)
 		SC16Q11 ADIQ_CH2;
 		printf("Convertendo arquivos de sinal para para binario IQ\r\n");
 		pont_output_data = fopen("saida.bin","w");
-		pont_data_pulse = fopen(argv[2],"r");
-		pont_data_echo = fopen(argv[3],"r");
-		//pont_data_q = fopen(argv[3],"r");
+		pont_data_pulse  = fopen(argv[2],"r");
+		pont_data_echo   = fopen(argv[3],"r");
+		//pont_data_q    = fopen(argv[3],"r");
 
 		line_number=1;
 		//while((fgets(ptemp_char_pulse,32,pont_data_pulse) != NULL) || (fgets(ptemp_char_echo,32,pont_data_echo) != NULL))

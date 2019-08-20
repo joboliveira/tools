@@ -22,6 +22,7 @@
 #define f_sinal   1000000   //   1e6 Hz
 #define f_amostra 20000000  //   20Msps
 #define k         (2 * cos(2 * PI * ((float)f_sinal/(float)f_amostra)))
+//#define k         (2 * sin(2 * PI * ((float)f_sinal/(float)f_amostra)))
 //#define n_elem    10 // 0.5e-6 Segundos
 //#define n_elem    1000 // 50e-6 Segundos
 #define n_elem    20  // 1e-6 Segundos
@@ -29,31 +30,45 @@
 int32_t n=0;
 float y[n_elem];
 
-FILE *arquivo;
+FILE *arquivoFloat;
+FILE *arquivoInt;
 
 int main()
 {
  printf("Gerador de onda senoidal em arquivo\r\n");
- printf("Arquivo de saida: SinalSenoidal.dat\r\n");
- if((arquivo =  fopen("SinalSenoidal.dat","w")) == NULL)
+ printf("Arquivo de saida: SinalSenoidalFloat.txt\r\n");
+ printf("Arquivo de saida: SinalSenoidalInt.txt\r\n");
+ if((arquivoFloat =  fopen("SinalSenoidalFloat.txt","w")) == NULL)
+ {
+  printf("Erro ao abrir o arquivo.\r\n");
+  return 0;
+ }
+
+ if((arquivoInt =  fopen("SinalSenoidalInt.txt","w")) == NULL)
  {
   printf("Erro ao abrir o arquivo.\r\n");
   return 0;
  }
 
  //Constante
- y[0]=0;
- fprintf(arquivo, "%f\r\n",y[n++]);
+ //y[0]=0;
+ y[0]=1.0;
+ fprintf(arquivoFloat, "%f\r\n",y[n++]);
+ fprintf(arquivoInt, "%d\r\n",(int16_t)(y[n++]*2047));
 
- // Constante
- y[1]=sin(2*PI*((float)f_sinal/(float)f_amostra));
- fprintf(arquivo,"%f\r\n",y[n++]);
+// Constante
+//y[1]=sin(2*PI*((float)f_sinal/(float)f_amostra));
+y[1]=cos(2*PI*((float)f_sinal/(float)f_amostra));
+fprintf(arquivoFloat,"%f\r\n",y[1]);
+fprintf(arquivoInt,"%d\r\n",(int16_t)(y[1]*2047));
 
  for (n=2; n < n_elem; n++)
  {
   y[n] = k*y[n-1]-y[n-2];
-  fprintf(arquivo,"%f\r\n",y[n]);
+  fprintf(arquivoFloat,"%f\r\n",y[n]);
+  fprintf(arquivoInt,"%d\r\n",(int16_t)(y[n]*2047));
  }
- fclose(arquivo);
+ fclose(arquivoFloat);
+ fclose(arquivoInt);
  return 0;
 }
