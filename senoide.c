@@ -18,22 +18,14 @@
 *  2.0us teremos 40 samples de um sinal de 2.0MHz, o que equivale a dois ciclos completos do sinal.
 */
 #define PI        3.141592654
-//#define f_sinal   2500000 // 2.5e6 Hz
-//#define f_sinal   500000  // 500e3 Hz
-//#define f_sinal   1000000   //   1e6 Hz
-//#define f_amostra 20000000  //   20Msps
-//#define k         (2 * cos(2 * PI * ((float)f_sinal/(float)f_amostra)))
 float k;
 float f_sinal;
 float f_amostra;
-//#define k         (2 * sin(2 * PI * ((float)f_sinal/(float)f_amostra)))
-//#define n_elem    10 // 0.5e-6 Segundos
-//#define n_elem    1000 // 50e-6 Segundos
-//#define n_elem    20  // 1e-6 Segundos
+
 
 int32_t n=0;
 long n_elem;
-float *y;//[n_elem];
+float *y;
 
 
 FILE *arquivoFloat;
@@ -58,7 +50,6 @@ int main(int argc, char **argv)
  f_amostra = atof(argv[3]);
  k = (2 * cos(2 * PI * (f_sinal/f_amostra)));
  n_elem = atol(argv[4]);
- //y = (float)malloc()
  y = (float *) malloc(n_elem * sizeof(float));
 
  if((arquivoInt =  fopen("SinalSenoidalInt.txt","w")) == NULL)
