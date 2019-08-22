@@ -1,12 +1,12 @@
 all:
-	gcc -c signal_generator.c -std=c99
-	gcc -o converter data_2_sc16q11.c -std=c99 -I. signal_generator.o -lm
+	gcc -std=c99 -c signal_generator.c
+	gcc -std=c99 -o converter data_2_sc16q11.c -I. signal_generator.o -lm
 
 senoidal:
-	gcc -o senoide senoide.c -std=c99
+	gcc -std=c99 -o senoide senoide.c -lm
 
 bin2hex:
-	gcc -o bin2hex bin2hex.c -I. -std=c99
+	gcc -std=c99 -o bin2hex bin2hex.c -I.
 
 csv2hex:
-	gcc -o csv2hex csv2hex.c -I. -std=c99
+	gcc -std=c99 -o csv2hex csv2hex.c -I.
