@@ -1,6 +1,7 @@
 #include <math.h>
 #include <stdint.h>
 #include <inttypes.h>
+#include <stddef.h>
 #include "signal_generator.h"
 
 #define PI 3.141592654

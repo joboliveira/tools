@@ -1,7 +1,8 @@
 #include <stdio.h>
+#include <stdlib.h>
 #include <math.h>
+#include <string.h>
 #include <inttypes.h>
-
 
 /*
 *
@@ -17,43 +18,89 @@
 *  2.0us teremos 40 samples de um sinal de 2.0MHz, o que equivale a dois ciclos completos do sinal.
 */
 #define PI        3.141592654
-//#define f_sinal   2500000 // 2.5e6 Hz
-//#define f_sinal   500000  // 500e3 Hz
-#define f_sinal   1000000   //   1e6 Hz
-#define f_amostra 20000000  //   20Msps
-#define k         (2 * cos(2 * PI * ((float)f_sinal/(float)f_amostra)))
-//#define n_elem    10 // 0.5e-6 Segundos
-//#define n_elem    1000 // 50e-6 Segundos
-#define n_elem    20  // 1e-6 Segundos
+float k;
+float f_sinal;
+float f_amostra;
+
 
 int32_t n=0;
-float y[n_elem];
+long n_elem;
+float *y;
 
-FILE *arquivo;
 
-int main()
+FILE *arquivoFloat;
+FILE *arquivoInt;
+
+int main(int argc, char **argv)
 {
+ if(argc <= 4){
+  printf("type senoide <sin|cos> <freq_signal> <Sampling_rate> <samples>\r\n");
+  return -1;
+ }
  printf("Gerador de onda senoidal em arquivo\r\n");
- printf("Arquivo de saida: SinalSenoidal.dat\r\n");
- if((arquivo =  fopen("SinalSenoidal.dat","w")) == NULL)
+ printf("Arquivo de saida: SinalSenoidalFloat.txt\r\n");
+ printf("Arquivo de saida: SinalSenoidalInt.txt\r\n");
+ if((arquivoFloat =  fopen("SinalSenoidalFloat.txt","w")) == NULL)
  {
   printf("Erro ao abrir o arquivo.\r\n");
-  return 0;
+  return -1;
+ }
+
+ f_sinal  = atof(argv[2]);
+ f_amostra = atof(argv[3]);
+ k = (2 * cos(2 * PI * (f_sinal/f_amostra)));
+ n_elem = atol(argv[4]);
+ y = (float *) malloc(n_elem * sizeof(float));
+
+ if((arquivoInt =  fopen("SinalSenoidalInt.txt","w")) == NULL)
+ {
+  printf("Erro ao abrir o arquivo.\r\n");
+  free(y);
+  return -1;
  }
 
  //Constante
- y[0]=0;
- fprintf(arquivo, "%f\r\n",y[n++]);
+ if (strcmp(argv[1],"sin") == 0)
+ {
+  y[0]=0.0;
+ } else if (strcmp(argv[1],"cos") == 0)
+ {
+  y[0]=1.0;
+ }
+ else
+ {
+  free(y);
+  return -1;
+ }
 
- // Constante
- y[1]=sin(2*PI*((float)f_sinal/(float)f_amostra));
- fprintf(arquivo,"%f\r\n",y[n++]);
+ fprintf(arquivoFloat, "%f\r\n",y[0]);
+ fprintf(arquivoInt, "%d\r\n",(int16_t)(y[0]*2047));
+
+// Constante
+ if (strcmp(argv[1],"sin") == 0)
+ {
+	 y[1]=sin(2*PI*((float)f_sinal/(float)f_amostra));
+ }
+ else if (strcmp(argv[1],"cos") == 0)
+ {
+	 y[1]=cos(2*PI*((float)f_sinal/(float)f_amostra));
+ } else
+ {
+	 free(y);
+	 return -1;
+ }
+
+fprintf(arquivoFloat,"%f\r\n",y[1]);
+fprintf(arquivoInt,"%d\r\n",(int16_t)(y[1]*2047));
 
  for (n=2; n < n_elem; n++)
  {
   y[n] = k*y[n-1]-y[n-2];
-  fprintf(arquivo,"%f\r\n",y[n]);
+  fprintf(arquivoFloat,"%f\r\n",y[n]);
+  fprintf(arquivoInt,"%d\r\n",(int16_t)(y[n]*2047));
  }
- fclose(arquivo);
+ fclose(arquivoFloat);
+ fclose(arquivoInt);
+ free(y);
  return 0;
 }
