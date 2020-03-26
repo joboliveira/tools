@@ -73,9 +73,9 @@ int main(int argc, char **argv)
 
   fseek (pont_data_bin, 0, SEEK_END);   // non-portable
   size=ftell (pont_data_bin);
-  if(size > 65536)
+  if(size > 262144)
   {
-    printf("Arquivo excedeu o tamanho de 65536 Bytes\r\n");
+    printf("Arquivo excedeu o tamanho de 262144 Bytes\r\n");
     fclose(pont_data_bin);
     fclose(pont_data_I_hex);
     fclose(pont_data_Q_hex);
