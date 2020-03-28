@@ -62,6 +62,7 @@ int main(int argc, char **argv)
   char     data_q_LL;
 
   long     size;
+  uint32_t count_size_of_file;
   uint8_t  crc_i;   // For use with Intel Hexfile
   uint8_t  crc_q;   // For use with Intel Hexfile
 
@@ -101,7 +102,7 @@ int main(int argc, char **argv)
 //  }
   // Uitilizado para configuração NN_NN@16bits
   #define QTD_BYTES 2
-  for (endereco ; endereco < size/4 ; endereco++)
+  for (count_size_of_file=0 ; count_size_of_file < size/4 ; count_size_of_file++,endereco++)
   {
     //fread(&data16, sizeof(data16),1, pont_data_bin);
     fread(&ADIQ, sizeof(ADIQ),1, pont_data_bin);
