@@ -94,8 +94,8 @@ for(long carrier=0; carrier < n_carrier; carrier++)
  }
  else if (strcmp(argv[1],"cos") == 0)
  {
-	 y[carrier + 0]=cos(0);
-	 y[carrier + 1]=cos(2*PI*((float)f_sinal*(carrier+1)/(float)f_amostra));
+	 y[carrier + 0]=-cos(0);
+	 y[carrier + 1]=-cos(2*PI*((float)f_sinal*(carrier+1)/(float)f_amostra));
  } else
  {
 	 free(y);
