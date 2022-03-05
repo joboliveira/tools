@@ -1,7 +1,7 @@
 # tools
-Simple tools for projects use with NUAND BladeRF2 A4 and A9
+Simple tools for BladeRF 2.0 projects use with NUAND A4 and A9
 
-Converts Sample Files Binary Data (SC16Q11 format) int to .hex
+Converts Wave Sample Files Binary Data (SC16Q11 format) in to .hex
 
 
 This is a simple code to export an intel Hex file. This file was used by Quartus embedded ROM in Signal generators for embedded IPs used as signal generators.
